@@ -1,8 +1,44 @@
-<html>
-    <head>
-        <title>HELLO CS61HEH</title>
-    </head>
-    <body>
-        <h1>Something something lab assistants something something lol</h1>
-    </body>
+<!DOCTYPE HTML>
+<html lang="en" xml:lang="en">
+  <head>
+    <title>la-la</title>
+    <meta charset="utf-8">
+    <meta name="google-signin-client_id" content="898854390019-vo2sf4k2fnr4046ut5h1u236bhd7dgtn.apps.googleusercontent.com">
+
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <script>
+      function onSignIn(googleUser) {
+        console.log("User signed in!");
+      }
+
+      function onSignOut() {
+        var auth2 = gapi.auth2.getAuthInstance();
+        auth2.signOut().then(function () {
+          console.log('User signed out.');
+        });
+      }
+
+      function getBasicInfo() {
+        console.log("Getting info!");
+        var auth2 = gapi.auth2.getAuthInstance();
+        console.log(auth2);
+        console.log(auth2.isSignedIn.get());
+        if (auth2.isSignedIn.get()) {
+          var profile = auth2.currentUser.get().getBasicProfile();
+          console.log('ID: ' + profile.getId());
+          console.log('Full Name: ' + profile.getName());
+          console.log('Given Name: ' + profile.getGivenName());
+          console.log('Family Name: ' + profile.getFamilyName());
+          console.log('Image URL: ' + profile.getImageUrl());
+          console.log('Email: ' + profile.getEmail());
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <h1>Something something lab assistants something something lol</h1>
+    <div class="g-signin2" data-onsuccess="onSignIn"></div>
+    <a href="#" onclick="onSignOut();">Sign out</a>
+    <a href="#" onclick="getBasicInfo();">Get me my info nerd</a>
+  </body>
 </html>
