@@ -1,13 +1,11 @@
 from flask import redirect, url_for, session, jsonify, Blueprint
 from flask_oauth import OAuth
 
-from auth import auth
+from ..constants import GOOGLE_REDIRECT_URI
+from app import app
 
 import requests
 import json
-
-GOOGLE_REDIRECT_URI = "/oauth2callback"
-GOOGLE_OAUTH_URL = "https://www.googleapis.com/oauth2/v1/userinfo"
 
 auth = Blueprint('auth', __name__)
 
@@ -28,29 +26,19 @@ google = oauth.remote_app('google',
 )
 
 
-# Take a url to redirect back to and then start a user session?
 @auth.route('/')
 def index():
     access_token = session.get('access_token')
     if access_token is None:
-        callback = url_for('authorized', _external=True)
+        callback = url_for('auth.authorized', _external=True)
         return google.authorize(callback=callback)
     return redirect(url_for('index'))
-    # access_token = access_token[0]
-
-    # try:
-    #     headers = {'Authorization' : "OAuth {0}".format(access_token)}
-    #     req = requests.get(GOOGLE_OAUTH_URL, headers=headers)
-    #     return jsonify(req.json())
-    # except requests.exceptions.RequestException:
-    #     # TODO Log this thing
-    #     return "YOU FUCKED UP A-A-RON"
 
 @auth.route(GOOGLE_REDIRECT_URI)
 @google.authorized_handler
 def authorized(resp):
     access_token = resp['access_token']
-    session['access_token'] = access_token, ''
+    session['access_token'] = access_token
     return redirect(url_for('auth.index'))
 
 @google.tokengetter
