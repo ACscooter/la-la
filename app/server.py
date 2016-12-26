@@ -1,8 +1,7 @@
-from flask import render_template
+from flask import render_template, redirect, session
 
 from app import app
 
 @app.route('/')
-@app.route('/index')
 def index():
-    return render_template('index.html')
+    print("HA!")
