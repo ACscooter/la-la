@@ -8,6 +8,7 @@ import requests
 
 @app.route('/')
 def index():
+    """ The splash page. """
     access_token = session.get('access_token')
     if access_token is None:
         return redirect(url_for("auth.index"))

@@ -1,0 +1,28 @@
+class Config:
+    """ Base app configurations """
+    APP_NAME = "la-la The Staff Management System"
+    SECRET_KEY = "super secret key here!"
+    DEBUG = True
+
+    """ OAuth2 configurations """
+    GOOGLE_CLIENT_ID = "google client ID here!"
+    GOOGLE_CLIENT_SECRET = "google client secret here!"
+
+
+class DevConfig(Config):
+    """ Development environment configurations """
+    SQLALCHEMY_DATABASE_URI = "mysql://user:password@some_data_base_here"
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+
+class ProdConfig(Config):
+    """ Production environment configurations """
+    SQLALCHEMY_DATABASE_URI = "mysql://user:password@some_data_base_here"
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+# You can specify which environment you want to develop in. 
+config = {
+    'dev' : DevConfig,
+    'prod' : ProdConfig,
+    'default' : DevConfig
+}

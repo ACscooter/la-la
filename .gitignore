@@ -1,5 +1,5 @@
 # NO CONFIGURATION FILES!
-settings.cfg
+app/config.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -2,12 +2,18 @@ from flask import redirect, url_for, session, jsonify, Blueprint
 from flask_oauth import OAuth
 
 from ..constants import GOOGLE_REDIRECT_URI
-from app import app
+from app import app, login_manager
 
 import requests
 import json
 
 auth = Blueprint('auth', __name__)
+
+
+
+
+# --------------------------- OAUTH SETUP ---------------------------
+
 
 oauth = OAuth()
 google = oauth.remote_app('google',
@@ -25,6 +31,15 @@ google = oauth.remote_app('google',
     consumer_secret=app.config['GOOGLE_CLIENT_SECRET']
 )
 
+@google.tokengetter
+def get_access_token():
+    return session.get('access_token')
+
+
+# --------------------------- HELPER FUNCTIONS ---------------------------
+
+
+
 
 @auth.route('/')
 def index():
@@ -40,7 +55,3 @@ def authorized(resp):
     access_token = resp['access_token']
     session['access_token'] = access_token
     return redirect(url_for('auth.index'))
-
-@google.tokengetter
-def get_access_token():
-    return session.get('access_token')
