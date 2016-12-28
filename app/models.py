@@ -2,7 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData, Column, types
-from constants import AccessLevel
+from .constants import AccessLevel
 
 
 import functools
@@ -38,12 +38,18 @@ class User(db.Model, UserMixin):
     """ A model for Users. """
 
     __tablename__ = "users"
-    id = Column(db.Integer, primary_key=True, nullable=False)
-    sid = Column(db.Integer, nullable=False, unique=True)
-    googleuser = Column(db.Integer, nullable=False, unique=True)
+    id = Column(db.Integer, primary_key=True)
+    sid = Column(db.Integer, unique=True)
+    gid = Column(db.Integer, nullable=False, unique=True)
     name = Column(db.String(255))
     email = Column(db.String(255), nullable=False)
     privilege = Column(types.Enum(AccessLevel), nullable=False)
+
+
+    @staticmethod
+    def lookup(google_id):
+        """ Get a User with the google assigned user id. """
+        return User.query.filter_by(gid=google_id).one_or_none()
 
 
 
