@@ -127,16 +127,13 @@ def index():
     token = session.get('google_token')
     if token is None:
         callback = url_for('auth.authorized', _external=True)
-        print(">> CALLBACK ADDRESS: " + callback)
         return google_auth.authorize(callback=callback)
     # Already signed in
     return redirect(url_for('index', _external=True))
 
 @auth.route('/authorized')
 def authorized():
-    print(">> CURRENTLY IN CALLBACK!")
     response = google_auth.authorized_response()
-    print(response)
     if response is None:
         return "Access denied: reason={0} error={1}".format(
             request.args['error_reason'],
