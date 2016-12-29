@@ -1,12 +1,17 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import MetaData, Column, types
 
-from app.constants import AccessLevel
+from sqlalchemy import MetaData, Column, ForeignKey, types
+from sqlalchemy.dialects import mysql
+
+from app.constants import AccessLevel, SectionType
+from app.utils import check_sections_csv, generate_rrule
 
 import functools
 import logging
+import pickle
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +41,22 @@ def transaction(f):
     return wrapper
 
 
+class TimeRule(types.TypeDecorator):
+    """ Custom type for Dateutil rrule object. Simply pickles the object and
+    stores it as Text
+    """
+
+    impl = types.Text
+
+    def process_bind_param(self, value, dialect):
+        # Python -> SQL
+        return pickle.dumps(value) if value is not None else None
+
+    def process_result_value(self, value, dialect):
+        # SQL -> Python
+        return pickle.loads(value)  if value is not None else None
+
+
 class User(db.Model, UserMixin):
     """ A model for Users. """
 
@@ -47,13 +68,82 @@ class User(db.Model, UserMixin):
     email = Column(db.String(255), nullable=False)
     access = Column(types.Enum(AccessLevel), nullable=False)
 
+    sections = db.relationship("Section")
+
+    def get_sections(self):
+        """ Returns all the sections the user is teaching. """
+        if self.access == AccessLevel.STAFF or self.access == AccessLevel.ADMIN:
+            return self.sections
 
     @staticmethod
     def lookup_by_google(google_id):
-        """ Get a User with the google assigned user id. """
+        """ Gets a user with the google assigned user id. """
         return User.query.filter_by(gid=google_id).one_or_none()
 
     @staticmethod
     def lookup_by_id(user_id):
         """ Gets the User id by the primary key. """
         return User.query.get(user_id)
+
+    @staticmethod
+    def lookup_by_sid(student_id):
+        """ Gets a user by the associated Berkeley student id. """
+        return User.query.filter_by(sid=student_id).one_or_none()
+
+
+class Section(db.Model):
+    """ A model for sections.
+
+    NOTE:   Currently forces the instructor to have an account first before
+            sections can be stored.
+    """
+
+    __tablename__ = "sections"
+    id = Column(db.Integer, primary_key=True)
+    section_id = Column(db.String(255), nullable=False, unique=True)
+    section_type = Column(types.Enum(SectionType), nullable=False)
+    instructor_id = Column(db.Integer, ForeignKey('users.id'))
+    date = Column(TimeRule, nullable=False)
+    location = Column(db.String(255), nullable=False)
+
+    @staticmethod
+    def sections_from_id(section_id):
+        """ Returns the section with the Berkeley id SECTION_ID. """
+        return db.query.filter_by(section_id=section_id).one_or_none()
+
+    @staticmethod
+    def sections_from_instructor(instructor_id):
+        """ Returns a list of sections associated with the instructors id. """
+        return db.query.filter_by(instructor_id=instructor_id)
+
+    @staticmethod
+    @transaction
+    def load_sections_from_csv(contents):
+        """ Populates the Section table from CONTENTS. Expects contents to be
+        a list of dicts where each element is a row in the table.
+        """
+        if not check_sections_csv(contents):
+            raise TypeError("Missing necessary columns")
+
+        not_added = set()
+        for entry in contents:
+            section = sections_from_id(entry['section_id'])
+            if section is None:
+                user = User.lookup_by_sid(entry['instructor_id'])
+                if user is None:
+                    not_added.add(entry['instructor_id'])
+                else:
+                    logging.info("CALLING(load_sections_from_csv) creating section "
+                        + entry['section_id']
+                    )
+                    date_rule = generate_rrule(entry['start_date'], entry['start_time'])
+                    section = Section(section_id=entry['section_id'],
+                        section_type=entry['section_type'],
+                        instructor_id=user.id,
+                        date=date_rule,
+                        location=entry['location']
+                    )
+                    db.session.add(section)
+        if len(not_added) > 0:
+            logging.warning("CALLING(load_sections_from_csv) missing instructors " + not_added)
+            raise TypeError("Instructors do not have an account! " + not_added)

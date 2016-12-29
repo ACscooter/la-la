@@ -12,3 +12,4 @@ mysqlclient==1.3.9
 flask-oauthlib==0.9.3
 oauthlib==2.0.1
 requests-oauthlib==0.7.0
+python-dateutil==2.6.0
