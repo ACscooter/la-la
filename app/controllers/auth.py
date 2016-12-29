@@ -64,7 +64,7 @@ def user_from_google_id(user_data):
     """
     user = User.lookup_by_google(user_data['id'])
     if user is None:
-        logger.info("CALLING(user_from_google_id) : Creating user email={}".format(
+        logger.info("CALLING(user_from_google_id) Creating user email={}".format(
             user_data['email'])
         )
         user = User(sid=-1,
@@ -81,7 +81,7 @@ def user_from_google_id(user_data):
 def google_user_data(token, timeout=5):
     """ Returns the account information associated with the token. """
     if not token:
-        logger.info("CALLING(google_user_data) : user token is NONE")
+        logger.info("CALLING(google_user_data) user token is NONE")
         return None
     try:
         h = {'Authorization' : "OAuth {0}".format(token)}
@@ -90,13 +90,13 @@ def google_user_data(token, timeout=5):
         if 'error' not in data and data.get('email'):
             return data
     except requests.exceptions.Timeout as e:
-        logger.warning("CALLING(google_user_data) : user data request timeout")
+        logger.warning("CALLING(google_user_data) user data request timeout")
         return None
 
 
 def authorize_user(user):
     if user is None:
-        logger.warning("CALLING(authorize_user) : user is NONE")
+        logger.warning("CALLING(authorize_user) user is NONE")
         raise TypeError("Cannot authorize as None")
     login_user(user)
     redirect_to = session.pop('redirect_after_login', None)
@@ -147,7 +147,7 @@ def authorized():
     token = response['access_token']
     user = user_from_google_token(token)
     if not user:
-        logger.warning("CALLING(authorize_user) : attempt to get user FAILED")
+        logger.warning("CALLING(authorize_user) attempt to get user FAILED")
         return redirect(url_for('index', _external=True))
     session['google_token'] = (token, '')
     return authorize_user(user)
