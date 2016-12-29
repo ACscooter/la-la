@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from app.constants import NUMBER_OF_SECTIONS, CHECK_IN_RANGE
+from app.constants import NUMBER_OF_SECTIONS
 
 import dateutil.rrule as dr
 import dateutil.parser as dp
@@ -28,7 +28,7 @@ def date_in_rule(date, date_rule):
 
     NOTE:   Assumes the type of DATE is datetime.datetime
     """
-    return date in date_rule
+    return any(date.date() == other.date() for other in date_rule)
 
 def date_in_rule_range(date, date_rule, range):
     """ Returns a list of dates for which date is in the range of the dates in
