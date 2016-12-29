@@ -26,6 +26,9 @@ metadata = MetaData(naming_convention=convention)
 db = SQLAlchemy(metadata=metadata)
 
 
+# --------------------------- HELPERS ---------------------------
+
+
 def transaction(f):
     """ Decorator for database (session) transactions."""
     @functools.wraps(f)
@@ -55,6 +58,10 @@ class TimeRule(types.TypeDecorator):
     def process_result_value(self, value, dialect):
         # SQL -> Python
         return pickle.loads(value)  if value is not None else None
+
+
+
+# --------------------------- MODELS ---------------------------
 
 
 class User(db.Model, UserMixin):
