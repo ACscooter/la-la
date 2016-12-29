@@ -1,11 +1,13 @@
 from flask import render_template, redirect, session, jsonify, url_for
 from flask_login import login_required
 
-from app.constants import GOOGLE_OAUTH_URL, AccessLevel
-from app.models import db, User
+from app.constants import GOOGLE_OAUTH_URL, AccessLevel, SectionType
+from app.models import db, User, Section, Attendance
+from app.utils import generate_rrule
 from app import app
 
 import requests
+from dateutil import parser as dp
 
 @app.route('/')
 def index():
@@ -25,8 +27,7 @@ def account_info():
     except requests.exceptions.RequestException:
         return "YOU FUCKED UP A-A-RON"
 
-@app.route('/dbtest')
+@app.route('/test')
+@login_required
 def test():
-    if db.session.query("1").from_statement("SELECT 1").all():
-        return "YOU DID IT!"
-    return "YOU SUCK A LOT!"
+    return "Done!"
