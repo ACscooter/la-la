@@ -2,8 +2,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData, Column, types
-from .constants import AccessLevel
 
+from app.constants import AccessLevel
 
 import functools
 
@@ -43,15 +43,15 @@ class User(db.Model, UserMixin):
     gid = Column(db.Integer, nullable=False, unique=True)
     name = Column(db.String(255))
     email = Column(db.String(255), nullable=False)
-    privilege = Column(types.Enum(AccessLevel), nullable=False)
+    access = Column(types.Enum(AccessLevel), nullable=False)
 
 
     @staticmethod
-    def lookup(google_id):
+    def lookup_by_google(google_id):
         """ Get a User with the google assigned user id. """
         return User.query.filter_by(gid=google_id).one_or_none()
 
-
-
-    # add announcment
-    # add
+    @staticmethod
+    def lookup_by_id(user_id):
+        """ Gets the User id by the primary key. """
+        return User.query.get(user_id)

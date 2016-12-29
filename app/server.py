@@ -1,7 +1,8 @@
 from flask import render_template, redirect, session, jsonify, url_for
+from flask_login import login_required
 
-from .constants import GOOGLE_OAUTH_URL, AccessLevel
-from .models import db, User
+from app.constants import GOOGLE_OAUTH_URL, AccessLevel
+from app.models import db, User
 from app import app
 
 import requests
@@ -9,26 +10,17 @@ import requests
 @app.route('/')
 def index():
     """ The splash page. """
-    access_token = session.get('access_token')
-    if access_token is None:
-        return redirect(url_for("auth.index"))
+    return render_template("index.html")
+
+@app.route('/account-info')
+@login_required
+def account_info():
+    token = session.get('google_token')[0]
     try:
-        headers = {'Authorization' : "OAuth {0}".format(access_token)}
+        headers = {'Authorization' : "OAuth {0}".format(token)}
         req = requests.get(GOOGLE_OAUTH_URL, headers=headers)
         response = req.json()
-        print(response)
-        user = User.lookup(response['id'])
-        if not user:
-            print("Creating new user!")
-            user = User(sid=26862806,
-                gid=response['id'],
-                name=response['name'],
-                email=response['email'],
-                privilege=AccessLevel.STAFF
-            )
-            db.session.add(user)
-            db.session.commit()
-        print(user)
+        user = User.lookup_by_google(response['id'])
         return jsonify(req.json())
     except requests.exceptions.RequestException:
         # TODO Log this thing
