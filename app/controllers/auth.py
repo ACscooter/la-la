@@ -8,7 +8,10 @@ from app.models import User, db
 from app import app, login_manager
 
 import requests
+import logging
 import json
+
+logger = logging.getLogger(__name__)
 
 auth = Blueprint('auth', __name__)
 
@@ -43,11 +46,11 @@ def user_from_google_token(token):
     user does not exist, then creates a new user.
     """
     if not token:
-        # LOG THAT SHIT
+        logger.info("CALLING(user_from_google_token) : user token is NONE")
         return None
     user_data = google_user_data(token)
     if user_data is None:
-        # LOG THAT SHIT
+        logger.info("CALLING(user_from_google_token) : user data is NONE")
         return None
     return user_from_google_id(user_data)
 
@@ -61,7 +64,9 @@ def user_from_google_id(user_data):
     """
     user = User.lookup_by_google(user_data['id'])
     if user is None:
-        # LOG THAT SHIT creating new user
+        logger.info("CALLING(user_from_google_id) : Creating user email={}".format(
+            user_data['email'])
+        )
         user = User(sid=-1,
             gid=user_data['id'],
             name=user_data['name'],
@@ -76,7 +81,7 @@ def user_from_google_id(user_data):
 def google_user_data(token, timeout=5):
     """ Returns the account information associated with the token. """
     if not token:
-        # TODO log that shit
+        logger.info("CALLING(google_user_data) : user token is NONE")
         return None
     try:
         h = {'Authorization' : "OAuth {0}".format(token)}
@@ -85,23 +90,23 @@ def google_user_data(token, timeout=5):
         if 'error' not in data and data.get('email'):
             return data
     except requests.exceptions.Timeout as e:
-        # TODO loggggggging
+        logger.warning("CALLING(google_user_data) : user data request timeout")
         return None
 
 
 def authorize_user(user):
     if user is None:
-        # TODO LOG THAT SHIT
+        logger.warning("CALLING(authorize_user) : user is NONE")
         raise TypeError("Cannot authorize as None")
     login_user(user)
     redirect_to = session.pop('redirect_after_login', None)
     # TODO redirect people based on access level
-    return redirect(redirect_to or url_for('index'))
+    return redirect(redirect_to or url_for('index', _external=True))
 
 @login_manager.unauthorized_handler
 def unauthorized():
     session['redirect_after_login'] = request.url
-    return redirect(url_for('auth.index'))
+    return redirect(url_for('auth.index', _external=True))
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -113,10 +118,17 @@ def load_user(user_id):
 
 @auth.route('/')
 def index():
+    """ Logging in begins here. If the user is already authenticated, then
+    simply redirect them to another page.
+
+    TODO:   Figure out where to redirect already authenticated users to.
+    """
     token = session.get('google_token')
     if token is None:
-        return google_auth.authorize(callback=url_for('auth.authorized', _external=True))
-    return redirect(url_for('index'))
+        callback = url_for('auth.authorized', _external=True)
+        return google_auth.authorize(callback=callback)
+    # Already signed in
+    return redirect(url_for('index', _external=True))
 
 @auth.route(GOOGLE_REDIRECT_URI)
 def authorized():
@@ -135,14 +147,13 @@ def authorized():
     token = response['access_token']
     user = user_from_google_token(token)
     if not user:
-        # Could not log user in.
-        # TODO Log this shit
-        return redirect(url_for('index'))
+        logger.warning("CALLING(authorize_user) : attempt to get user FAILED")
+        return redirect(url_for('index', _external=True))
     session['google_token'] = (token, '')
     return authorize_user(user)
 
-@auth.route("/logout/", methods=['POST'])
+@auth.route('/logout')
 def logout():
     logout_user()
     session.clear()
-    return redirect(url_for('index'))
+    return redirect(url_for('index', _external=True))

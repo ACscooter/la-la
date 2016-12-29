@@ -6,7 +6,9 @@ from sqlalchemy import MetaData, Column, types
 from app.constants import AccessLevel
 
 import functools
+import logging
 
+logger = logging.getLogger(__name__)
 
 convention = {
     'ix' : "ix_%(column_0_label)s",
@@ -28,7 +30,7 @@ def transaction(f):
             db.session.commit()
             return value
         except Exception as e:
-            # TODO Log e
+            logger.warning("Could not write to the DB: {}".format(e.message))
             db.session.rollback()
             raise
     return wrapper
