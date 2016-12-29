@@ -20,6 +20,7 @@ auth = Blueprint('auth', __name__)
 
 
 oauth = OAuth(app)
+
 google_auth = oauth.remote_app('google',
     consumer_key=app.config['GOOGLE_CLIENT_ID'],
     consumer_secret=app.config['GOOGLE_CLIENT_SECRET'],

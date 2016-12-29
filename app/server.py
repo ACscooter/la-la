@@ -23,7 +23,6 @@ def account_info():
         user = User.lookup_by_google(response['id'])
         return jsonify(req.json())
     except requests.exceptions.RequestException:
-        # TODO Log this thing
         return "YOU FUCKED UP A-A-RON"
 
 @app.route('/dbtest')

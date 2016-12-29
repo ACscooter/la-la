@@ -9,4 +9,4 @@ class AccessLevel(enum.Enum):
     """ Different privilege levels for the application. """
     ASSISTANT = "lab assistant"
     STAFF = "course staff"
-    INSTRUCTOR = "instructor"
+    ADMIN = "administrator"
