@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 import enum
 
 # Google Sign-in related constants
@@ -5,6 +7,9 @@ GOOGLE_OAUTH_URL = "https://www.googleapis.com/oauth2/v1/userinfo"
 
 # The number of sections in each semester
 NUMBER_OF_SECTIONS = 15
+
+# The time for which lab assistants can check in for a lab
+CHECK_IN_RANGE = timedelta(days=7)
 
 
 class AccessLevel(enum.Enum):

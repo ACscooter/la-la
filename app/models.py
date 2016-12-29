@@ -6,7 +6,7 @@ from sqlalchemy import MetaData, Column, ForeignKey, types
 from sqlalchemy.dialects import mysql
 
 from app.constants import AccessLevel, SectionType, AttendanceType
-from app.utils import check_sections_csv, generate_rrule
+from app.utils import check_sections_csv, generate_rrule, date_in_rule
 
 import functools
 import logging
@@ -108,12 +108,18 @@ class User(db.Model, UserMixin):
         if self.access != AccessLevel.ASSISTANT:
             logger.info("Set attendance error for {0}: staff member".format(self.name))
             raise TypeError("Cannot set attendance for staff")
-
+        section = Section.lookup_by_section_id(section_id)
+        if not section.is_valid_date(date):
+            logger.info("Set attendance error for {0}: wrong date {1}".format(
+                self.name,
+                date
+            ))
+            raise TypeError("Cannot set attendance for section on {0}".format(date))
         attend = Attendance.lookup_by_assistant_section_date(self.id, section_id, date)
         if attend is None:
             attend = Attendance(date=date,
-                user_id=user_id,
-                section_id=section_id,
+                user_id=user.id,
+                section_id=section.id,
                 attendance_type=attend
             )
             db.session.add(attend)
@@ -186,8 +192,7 @@ class Section(db.Model):
 
     def is_valid_date(date):
         """ Returns true if DATE is a valid class date for this section. """
-        pass
-
+        return date_in_rule(date, date_rule)
 
     @staticmethod
     def lookup_by_section_id(section_id):

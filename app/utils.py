@@ -1,8 +1,10 @@
+from datetime import datetime, timedelta
+
+from app.constants import NUMBER_OF_SECTIONS, CHECK_IN_RANGE
+
 import dateutil.rrule as dr
 import dateutil.parser as dp
 import dateutil.relativedelta as drel
-
-from app.constants import NUMBER_OF_SECTIONS, CHECK_IN_RANGE
 
 def check_sections_csv(contents):
     """ Returns if the CSV of sections is valid. """
@@ -21,6 +23,19 @@ def generate_rrule(start_date, start_time):
     start = dp.parse("{0} {1}".format(start_date, start_time))
     return dr.rrule(dr.WEEKLY, dtstart=start, count=NUMBER_OF_SECTIONS)
 
-def date_is_in_range(date, date_rule):
-    """ Returns if the given date is in the range of the date_rule. """
-        
+def date_in_rule(date, date_rule):
+    """ Returns if the given date is in the range of the date_rule.
+
+    NOTE:   Assumes the type of DATE is datetime.datetime
+    """
+    return date in date_rule
+
+def date_in_rule_range(date, date_rule, range):
+    """ Returns a list of dates for which date is in the range of the dates in
+    date_rule.
+
+    NOTE:   Assumes the type of DATE is datetime.datetime and type of range is
+            datetime.timedelta
+    """
+    results = filter(lambda x : x - date <= range, date_rule)
+    return list(results)
