@@ -1,7 +1,6 @@
 import enum
 
 # Google Sign-in related constants
-GOOGLE_REDIRECT_URI = "/oauth2callback"
 GOOGLE_OAUTH_URL = "https://www.googleapis.com/oauth2/v1/userinfo"
 
 # The number of sections in each semester

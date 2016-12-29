@@ -3,7 +3,7 @@ from flask_oauthlib.client import OAuth, OAuthException
 from flask_login import (LoginManager, login_user, logout_user, login_required,
                         current_user)
 
-from app.constants import GOOGLE_REDIRECT_URI, GOOGLE_OAUTH_URL, AccessLevel
+from app.constants import GOOGLE_OAUTH_URL, AccessLevel
 from app.models import User, db
 from app import app, login_manager
 
@@ -127,13 +127,16 @@ def index():
     token = session.get('google_token')
     if token is None:
         callback = url_for('auth.authorized', _external=True)
+        print(">> CALLBACK ADDRESS: " + callback)
         return google_auth.authorize(callback=callback)
     # Already signed in
     return redirect(url_for('index', _external=True))
 
-@auth.route(GOOGLE_REDIRECT_URI)
+@auth.route('/authorized')
 def authorized():
+    print(">> CURRENTLY IN CALLBACK!")
     response = google_auth.authorized_response()
+    print(response)
     if response is None:
         return "Access denied: reason={0} error={1}".format(
             request.args['error_reason'],

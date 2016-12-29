@@ -35,7 +35,7 @@ def transaction(f):
             db.session.commit()
             return value
         except Exception as e:
-            logger.warning("Could not write to the DB: {}".format(e.message))
+            logger.warning("Could not write to the DB: {}".format(e))
             db.session.rollback()
             raise
     return wrapper
@@ -68,12 +68,40 @@ class User(db.Model, UserMixin):
     email = Column(db.String(255), nullable=False)
     access = Column(types.Enum(AccessLevel), nullable=False)
 
+    # Relationships
     sections = db.relationship("Section")
+    enrolled = db.relationship("Enrollment")
 
-    def get_sections(self):
-        """ Returns all the sections the user is teaching. """
+    def get_sections_instructed(self):
+        """ Returns all sections the user is teaching. """
         if self.access == AccessLevel.STAFF or self.access == AccessLevel.ADMIN:
             return self.sections
+        return []
+
+    def get_sections_enrolled(self):
+        """ Returns all sections the user is enrolled in. """
+        if self.access == AccessLevel.ASSISTANT:
+            return self.enrolled
+        return []
+
+    @transaction
+    def enroll(self, section_id):
+        """ Enrolls an assistant in a section. """
+        section = Section.lookup_by_section_id(section_id)
+        if self.access != AccessLevel.ASSISTANT:
+            logger.info("Enrolling {0} to {1} error: cannot enroll staff member".format(
+                self.name,
+                section_id
+            ))
+            raise TypeError("Cannot enroll staff member")
+        if section is None:
+            logger.info("Enrolling {0} to {1} error: section does not exist".format(
+                self.name,
+                section_id
+            ))
+            raise TypeError("Section does not exist")
+        enrollment = Enrollment(user_id=self.id, section_id=section.id)
+        db.session.add(enrollment)
 
     @staticmethod
     def lookup_by_google(google_id):
@@ -106,15 +134,22 @@ class Section(db.Model):
     date = Column(TimeRule, nullable=False)
     location = Column(db.String(255), nullable=False)
 
-    @staticmethod
-    def sections_from_id(section_id):
-        """ Returns the section with the Berkeley id SECTION_ID. """
-        return db.query.filter_by(section_id=section_id).one_or_none()
+    # Relationships
+    assistants = db.relationship("Enrollment")
+
+    def get_enrolled_assistants(self):
+        """ Return all lab assistants assigned to this section. """
+        return self.assistants
 
     @staticmethod
-    def sections_from_instructor(instructor_id):
+    def lookup_by_section_id(section_id):
+        """ Returns the section with the Berkeley id SECTION_ID. """
+        return Section.query.filter_by(section_id=section_id).one_or_none()
+
+    @staticmethod
+    def lookup_by_instructor_id(instructor_id):
         """ Returns a list of sections associated with the instructors id. """
-        return db.query.filter_by(instructor_id=instructor_id)
+        return Section.query.filter_by(instructor_id=instructor_id)
 
     @staticmethod
     @transaction
@@ -127,7 +162,7 @@ class Section(db.Model):
 
         not_added = set()
         for entry in contents:
-            section = sections_from_id(entry['section_id'])
+            section = Section.lookup_by_section_id(entry['section_id'])
             if section is None:
                 user = User.lookup_by_sid(entry['instructor_id'])
                 if user is None:
@@ -147,3 +182,12 @@ class Section(db.Model):
         if len(not_added) > 0:
             logging.warning("CALLING(load_sections_from_csv) missing instructors " + not_added)
             raise TypeError("Instructors do not have an account! " + not_added)
+
+
+class Enrollment(db.Model):
+    """ A model for enrollments. """
+
+    __tablename__ = "enrollments"
+    id = Column(db.Integer, primary_key=True)
+    user_id = Column(db.Integer, ForeignKey('users.id'), nullable=False)
+    section_id = Column(db.Integer, ForeignKey('sections.id'), nullable=False)
