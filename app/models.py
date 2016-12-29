@@ -5,7 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData, Column, ForeignKey, types
 from sqlalchemy.dialects import mysql
 
-from app.constants import AccessLevel, SectionType
+from app.constants import AccessLevel, SectionType, AttendanceType
 from app.utils import check_sections_csv, generate_rrule
 
 import functools
@@ -71,6 +71,7 @@ class User(db.Model, UserMixin):
     # Relationships
     sections = db.relationship("Section")
     enrolled = db.relationship("Enrollment")
+    attended = db.relationship("Attendance")
 
     def get_sections_instructed(self):
         """ Returns all sections the user is teaching. """
@@ -83,6 +84,41 @@ class User(db.Model, UserMixin):
         if self.access == AccessLevel.ASSISTANT:
             return self.enrolled
         return []
+
+    def get_all_attendances(self):
+        """ Returns all attendance entries for user. """
+        if self.access == AccessLevel.ASSISTANT:
+            return self.attended
+        return []
+
+    def mark_present(section_id, date):
+        """ Marks the student as present from SECTION_ID on DATE. """
+        mark_attendance(section_id, date, AttendanceType.PRESENT)
+
+    def mark_absent(section_id, date):
+        """ Marks the student as absent from SECTION_ID on DATE. """
+        mark_attendance(section_id, date, AttendanceType.ABSENT)
+
+    @transaction
+    def mark_attendance(section_id, date, attend):
+        """ Marks the student as ATTEND from SECTION_ID on DATE. If element
+        with SECTION_ID and DATE already exists, then updates the attendance
+        to ATTEND.
+        """
+        if self.access != AccessLevel.ASSISTANT:
+            logger.info("Set attendance error for {0}: staff member".format(self.name))
+            raise TypeError("Cannot set attendance for staff")
+
+        attend = Attendance.lookup_by_assistant_section_date(self.id, section_id, date)
+        if attend is None:
+            attend = Attendance(date=date,
+                user_id=user_id,
+                section_id=section_id,
+                attendance_type=attend
+            )
+            db.session.add(attend)
+        else:
+            attend.attendance_type = attend
 
     @transaction
     def enroll(self, section_id):
@@ -100,8 +136,10 @@ class User(db.Model, UserMixin):
                 section_id
             ))
             raise TypeError("Section does not exist")
-        enrollment = Enrollment(user_id=self.id, section_id=section.id)
-        db.session.add(enrollment)
+        enrollment = Enrollment.lookup_by_assistant_section(user_id, section_id)
+        if enrollment is None:
+            enrollment = Enrollment(user_id=self.id, section_id=section.id)
+            db.session.add(enrollment)
 
     @staticmethod
     def lookup_by_google(google_id):
@@ -131,15 +169,25 @@ class Section(db.Model):
     section_id = Column(db.String(255), nullable=False, unique=True)
     section_type = Column(types.Enum(SectionType), nullable=False)
     instructor_id = Column(db.Integer, ForeignKey('users.id'))
-    date = Column(TimeRule, nullable=False)
+    date_rule = Column(TimeRule, nullable=False)
     location = Column(db.String(255), nullable=False)
 
     # Relationships
     assistants = db.relationship("Enrollment")
+    attendance = db.relation("Attendance")
 
     def get_enrolled_assistants(self):
         """ Return all lab assistants assigned to this section. """
         return self.assistants
+
+    def get_attendance_by_date(date):
+        """ Returns the attendance for this section on DATE. """
+        return [row for row in self.attendance if row.date == date]
+
+    def is_valid_date(date):
+        """ Returns true if DATE is a valid class date for this section. """
+        pass
+
 
     @staticmethod
     def lookup_by_section_id(section_id):
@@ -175,7 +223,7 @@ class Section(db.Model):
                     section = Section(section_id=entry['section_id'],
                         section_type=entry['section_type'],
                         instructor_id=user.id,
-                        date=date_rule,
+                        date_rule=date_rule,
                         location=entry['location']
                     )
                     db.session.add(section)
@@ -191,3 +239,29 @@ class Enrollment(db.Model):
     id = Column(db.Integer, primary_key=True)
     user_id = Column(db.Integer, ForeignKey('users.id'), nullable=False)
     section_id = Column(db.Integer, ForeignKey('sections.id'), nullable=False)
+
+    @staticmethod
+    def lookup_by_assistant_section(user_id, section_id):
+        """ Returns the reference associated with USER_ID and SECTION_ID. """
+        return Enrollment.query.filter_by(user_id=user_id,
+                                        section_id=section_id).one_or_none()
+
+
+class Attendance(db.Model):
+    """ A model for tracking attendance. """
+
+    __tablename__ = "attendance"
+    id = Column(db.Integer, primary_key=True)
+    date = Column(db.DateTime, nullable=False)
+    user_id = Column(db.Integer, ForeignKey('users.id'), nullable=False)
+    section_id = Column(db.Integer, ForeignKey('sections.id'), nullable=False)
+    attendance_type = Column(types.Enum(AttendanceType), nullable=False)
+
+    @staticmethod
+    def lookup_by_assistant_section_date(user_id, section_id, date):
+        """ Returns the reference associated with USER_ID on DATE for
+        SECTION_ID.
+        """
+        return Attendance.query.filter_by(user_id=user_id,
+                                            section_id=section_id,
+                                            date=date).one_or_none()

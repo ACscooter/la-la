@@ -20,3 +20,10 @@ class SectionType(enum.Enum):
 
     LAB = "lab"
     OFFICE_HOUR = "office hour"
+
+
+class AttendanceType(enum.Enum):
+    """ A lab assistant can only be present at lab or be absent. """
+
+    ABSENT = "absent"
+    PRESENT = "present"
