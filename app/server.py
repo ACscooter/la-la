@@ -30,21 +30,4 @@ def account_info():
 @app.route('/test')
 @login_required
 def test():
-    person_a = User.lookup_by_sid(1337)
-    enrollments = person_a.get_sections_enrolled()
-    for entry in enrollments:
-        print("Enrolled in " + entry.section_id)
-    new_section = Section(section_id="ABC123",
-        section_type=SectionType.LAB,
-        instructor_id=9,
-        date_rule=generate_rrule("01/06/1997", "09:00:00"),
-        location="Soda Hall 310"
-    )
-    # new_section.add_section()
-    person_a.enroll("ABC123")
-    date = dp.parse("01/13/1997")
-    person_a.mark_present("ABC123", date)
-    ta = User.lookup_by_sid(26862806)
-    attend = Attendance.lookup_by_assistant_section_date(person_a.id, 8, date)
-    attend.confirm_attendance(ta)
     return "Done!"
