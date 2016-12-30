@@ -22,6 +22,8 @@ login_manager.session_protection = "strong"
 
 # Register all the blueprints
 from .controllers.auth import auth
+from .controllers.assistant import assistant
 app.register_blueprint(auth, url_prefix="/auth")
+app.register_blueprint(assistant, url_prefix="/assistant")
 
 from app import server
