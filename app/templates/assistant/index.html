@@ -1,15 +1,57 @@
 <!DOCTYPE HTML>
 <html lang="en" xml:lang="en">
 <head>
-  <title>La-La | Assistants</title>
+  <title>La-La | Assistant</title>
   <meta charset="utf-8">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <link type="text/css" rel="stylesheet" href="static/css/materialize.css"  media="screen,projection"/>
-  <!-- <link type="text/css" rel="stylesheet" href="static/css/style.css"  media="screen,projection"/> -->
+  <link type="text/css" rel="stylesheet" href="../static/css/materialize.css"  media="screen,projection"/>
+
+  <script type="text/javascript" src="../static/js/jquery-3.1.1.min.js"></script>
+  <script type="text/javascript" src="../static/js/materialize.js"></script>
+  <script>
+    $(document).ready(function(){
+      $('.button-collapse').sideNav({
+        menuWidth: 300
+      });
+      $('.collapsible').collapsible();
+    });
+  </script>
 </head>
 <body>
-  <p>
-    Hello!
-  </p>
+  <nav>
+  <main>
+    <!-- <nav> -->
+      <ul class="hide-on-med-and-down">
+        <li><a href="#" data-activates="slide-out" class="button-collapse show-on-large" onclick="console.log('Man fuck this shit');"><i class="material-icons">menu</i></a></li>
+        <li><a href="#!">First Navbar Link</a></li>
+        <li><a href="#!">Second Navbar Link</a></li>
+      </ul>
+      <ul id="slide-out" class="side-nav">
+        <li class="bold"><a href="#!" class="waves-effect waves-teal">First Sidebar Link</a></li>
+        <li class="bold"><a href="#!" class="">Second Sidebar Link</a></li>
+        <li>
+         <ul class="collapsible collapsible-accordion">
+           <li>
+             <a class="collapsible-header waves-effect waves-teal">Dropdown<i class="material-icons right">keyboard_arrow_down</i></a>
+             <div class="collapsible-body">
+               <ul>
+                 <li><a href="#!">First</a></li>
+                 <li><a href="#!">Second</a></li>
+                 <li><a href="#!">Third</a></li>
+                 <li><a href="#!">Fourth</a></li>
+               </ul>
+             </div>
+           </li>
+         </ul>
+        </li>
+     </ul>
+    <!-- </nav> -->
+  </main>
+  </nav>
+  <div class="row">
+    <div class="col s12">
+      <h1 class="center">HELP ME <a href="#" data-activates="slide-out" class="button-collapse show-on-large" onclick="console.log('Man fuck this shit');"><i class="material-icons">menu</i></a></h1>
+    </div>
+  </div>
 </body>
 </html>
