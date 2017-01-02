@@ -324,3 +324,60 @@ class Attendance(db.Model):
         return Attendance.query.filter_by(assistant_id=user_id,
                                         section_id=section_id,
                                         section_date=section_date).one_or_none()
+
+
+# --------------------------- ANNOUNCEMENTS MODEL ---------------------------
+
+
+class Announcement(db.Model):
+    """ A model for announcements.
+
+    NOTE:   The tags are comma separated and meant to be rendered as different
+            chips in the front-end.
+    """
+
+    __tablename__ = "announcements"
+    id = Column(db.Integer, primary_key=True)
+    author = Column(db.Integer, ForeignKey('users.id'), nullable=False)
+    date = Column(db.DateTime)
+    title = Column(db.String(255), nullable=False)
+    content = Column(db.Text, nullable=False)
+    tags = Column(db.Text)
+
+    def format_as_dict(self):
+        """ Returns the announcement in a nice dictionary format. """
+        user = User.query.filter_by(id=self.author).one_or_none()
+        user_name = "admin"
+        if user is not None:
+            user_name = user.name
+        formatted = {
+            'title' : self.title,
+            'author' : user_name,
+            'date' : self.date,
+            'content' : self.content,
+            'tags' : self.tags.split(", ")
+        }
+        return formatted
+
+    @staticmethod
+    @transaction
+    def make_announcement(user, title, content, tags=None):
+        """ Makes an announcement from USER at the current time. """
+        new_announcement = Announcement(
+            author=user.id,
+            date=datetime.now(),
+            title=title,
+            content=content,
+            tags=tags
+        )
+        db.session.add(new_announcement)
+
+    @staticmethod
+    def all_announcements():
+        """ Returns all announcements as a list in dict format. """
+        return [entry.format_as_dict() for entry in Announcement.query.all()]
+
+    @staticmethod
+    def lookup_by_author(user_id):
+        """ Returns all announcements made by USER_ID. """
+        return db.session.query.filter_by(author=user_id).all()
