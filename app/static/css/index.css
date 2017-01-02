@@ -1,0 +1,40 @@
+.splash-trash-section {
+    position: relative;
+    height: 800px;
+    width: auto;
+    background: url('../img/trash.jpg') center 30% no-repeat;
+    background-size: cover;
+}
+
+.logo-font {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  line-height: 1;
+  color: #767777;
+  font-weight: 500;
+}
+
+.splash-slogan {
+  font-size: 60px;
+  color: #555555;
+  padding-top: 100px;
+}
+
+.splash-sub-slogan {
+  font-size: 21px;
+  padding-top: 24px;
+  padding-bottom: 50px;
+}
+
+.splash-header-section {
+  position: relative;
+  height: 800px;
+  width: auto;
+  background-size: cover;
+}
+
+.splash-slogan-body {
+  font-size: 21px;
+  padding-top: 50px;
+  font-weight: 300;
+  color: #767777;
+}

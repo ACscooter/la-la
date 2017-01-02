@@ -1,40 +1,45 @@
-<!DOCTYPE HTML>
-<html lang="en" xml:lang="en">
+<!doctype html>
+<html lang="en">
 <head>
-  <title>La-La</title>
   <meta charset="utf-8">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <link type="text/css" rel="stylesheet" href="static/css/materialize.css"  media="screen,projection"/>
-  <link type="text/css" rel="stylesheet" href="static/css/style.css"  media="screen,projection"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>La-La</title>
+
+  <!-- Page Styles -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.min.css">
+  <link rel="stylesheet" href="static/css/index.css">
 </head>
 <body>
-  <main>
-    <nav>
-      <div class="nav-wrapper container" role="navigation">
-        <a href="https://google.com" class="brand-logo"><i class="material-icons">cloud</i></a>
-        <ul id="nav-mobile" class="right hide-on-mid-and-down">
-          <li><a href="auth">Login</a></li>
-        </ul>
+  <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header mdl-layout--no-drawer-button">
+    <header class="mdl-layout__header mdl-color--teal-400">
+      <div class="mdl-layout__header-row">
+        <span class="mdl-layout-title"><i class="material-icons">cloud</i></span>
+        <div class="mdl-layout-spacer"></div>
+        <nav class="mdl-navigation">
+          <a class="mdl-navigation__link" href="auth">Login</a>
+        </nav>
       </div>
-    </nav>
-    <div class="section">
-      <br><br>
-      <div class="container">
-        <h1 class="center">La-La</h1>
-        <div class="row center">
-          <h5 class="col s12 light">Yet another <i class="material-icons">delete</i> lab assistant management application</h5>
-        </div>
+    </header>
+    <main class="mdl-layout__content">
+      <div class="splash-header-section mdl-typography--text-center">
+        <div class="logo-font splash-slogan">La-La</div>
+        <div class="logo-font splash-sub-slogan">yet another <i class="material-icons">delete</i> lab assistant management application.</div>
+        <img src="static/img/trash.jpg" alg="das you">
+
+        <div class="logo-font splash-slogan-body">Get started now!</div>
         <br>
-        <div class="row center">
-          <a href="assistant" class="waves-effect waves-light btn"><i class="material-icons left">rowing</i>Assistant Login</a>
-        </div>
-        <div class="row center">
-          <a href="account-info" class="waves-effect waves-light btn"><i class="material-icons left">pregnant_woman</i>Secret Button</a>
-        </div>
+        <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" onclick="location.href='auth';">
+          Student Login
+        </button>
+        <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" onclick="location.href='account-info';">
+          Secret Button
+        </button>
       </div>
-    </div>
-  </main>
-  <script type="text/javascript" src="static/js/jquery-3.1.1.min.js"></script>
-  <script type="text/javascript" src="static/js/materialize.js"></script>
+      <!-- <h1 class="mdl-typography--text-center">Fuck this shit</h1> -->
+    </main>
+  </div>
+  <script src="https://code.getmdl.io/1.3.0/material.min.js"></script>
 </body>
 </html>
