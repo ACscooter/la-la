@@ -26,21 +26,47 @@
     <div class="mdl-layout__drawer">
       <span class="mdl-layout-title">Title</span>
       <nav class="mdl-navigation">
-        <a class="mdl-navigation__link" href="">Drawer Link</a>
-        <a class="mdl-navigation__link" href="">Drawer Link</a>
-        <a class="mdl-navigation__link" href="">Drawer Link</a>
+        <a class="mdl-navigation__link" href="">Announcements</a>
+        <a class="mdl-navigation__link" href="">Check-in</a>
+        <a class="mdl-navigation__link" href="">Material</a>
       </nav>
     </div>
     <main class="mdl-layout__content">
+      <div class="mdl-grid">
+        <div class="mdl-layout-spacer"></div>
+        <div class="mdl-cell mdl-cell--6-col">
+          <span class="announcement-title mdl-typography--display-3">
+            Announcements
+          </span>
+        </div>
+        <div class="mdl-layout-spacer"></div>
+      </div>
       <div class="page-content mdl-typography--text-center">
-        <h1>sample text</h1>
-        <h1>sample text</h1>
-        <h1>sample text</h1>
-        <h1>sample text</h1>
-        <h1>sample text</h1>
-        <h1>sample text</h1>
-        <h1>sample text</h1>
-        <h1>sample text</h1>
+        {% for post in announcements %}
+          <div class="mdl-grid">
+            <div class="mdl-layout-spacer"></div>
+            <div class="mdl-cell mdl-cell--6-col mdl-card mdl-shadow--3dp card-background-color">
+              <div class="mdl-card__title">
+                <h2 class="mdl-card__title-text">{{ post.title }}</h2>
+              </div>
+              <div class="mdl-card__supporting-text">
+                {{ post.content }}
+              </div>
+              <div class="mdl-card__actions mdl-card--border">
+                <span class="mdl-chip mdl-chip--contact">
+                  <img class="mdl-chip__contact" src="../static/img/harold.png"></img>
+                  <span class="mdl-chip__text">{{ post.author }}</span>
+                </span>
+                {% for tag in post.tags %}
+                  <span class="mdl-chip">
+                    <span class="mdl-chip__text">{{ tag }}</span>
+                  </span>
+                {% endfor %}
+              </div>
+            </div>
+            <div class="mdl-layout-spacer"></div>
+          </div>
+        {% endfor %}
       </div>
     </main>
   </div>

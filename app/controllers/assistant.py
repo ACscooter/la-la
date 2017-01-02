@@ -25,4 +25,5 @@ assistant = Blueprint('assistant', __name__)
 def index():
     """ Root assistant view which holds all the announcements. """
     results = Announcement.all_announcements()
+    results = sorted(results, key=lambda x : x['date'], reverse=True)
     return render_template("assistant/index.html", announcements=results)

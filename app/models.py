@@ -338,7 +338,7 @@ class Announcement(db.Model):
 
     __tablename__ = "announcements"
     id = Column(db.Integer, primary_key=True)
-    author = Column(db.Integer, ForeignKey('users.id'))
+    author = Column(db.Integer, ForeignKey('users.id'), nullable=False)
     date = Column(db.DateTime)
     title = Column(db.String(255), nullable=False)
     content = Column(db.Text, nullable=False)
@@ -346,7 +346,7 @@ class Announcement(db.Model):
 
     def format_as_dict(self):
         """ Returns the announcement in a nice dictionary format. """
-        user = User.query.filter_by(id=author).one_or_none()
+        user = User.query.filter_by(id=self.author).one_or_none()
         user_name = "admin"
         if user is not None:
             user_name = user.name
@@ -354,14 +354,14 @@ class Announcement(db.Model):
             'title' : self.title,
             'author' : user_name,
             'date' : self.date,
-            'contents' : self.contents
-            'tags' : tags.split(", ")
+            'content' : self.content,
+            'tags' : self.tags.split(", ")
         }
         return formatted
 
     @staticmethod
     @transaction
-    def make_announcement(user, title, tags, content):
+    def make_announcement(user, title, content, tags=None):
         """ Makes an announcement from USER at the current time. """
         new_announcement = Announcement(
             author=user.id,
