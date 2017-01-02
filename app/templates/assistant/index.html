@@ -1,75 +1,40 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>La-La | Assistant</title>
+{% extends "assistant/base.html" %}
 
-  <!-- Page Styles -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-  <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.min.css">
-  <link rel="stylesheet" href="../static/css/assistant/index.css">
-</head>
-<body>
-  <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
-    <header class="mdl-layout__header mdl-color--teal-400">
-      <div class="mdl-layout__header-row">
-        <nav class="mdl-navigation mdl-layout--large-screen-only">
-          <a class="mdl-navigation__link" href="">My Section</a>
-          <a class="mdl-navigation__link" href="">Preferences</a>
-        </nav>
-        <div class="mdl-layout-spacer"></div>
-        <span class="mdl-layout-title" style="font-weight:300;"> user@email.com</span>
-      </div>
-    </header>
-    <div class="mdl-layout__drawer">
-      <span class="mdl-layout-title">Title</span>
-      <nav class="mdl-navigation">
-        <a class="mdl-navigation__link" href="">Announcements</a>
-        <a class="mdl-navigation__link" href="">Check-in</a>
-        <a class="mdl-navigation__link" href="">Material</a>
-      </nav>
+{% block content %}
+  <div class="mdl-grid">
+    <div class="mdl-layout-spacer"></div>
+    <div class="mdl-cell mdl-cell--6-col">
+      <span class="announcement-title mdl-typography--display-3">
+        Announcements
+      </span>
     </div>
-    <main class="mdl-layout__content">
+    <div class="mdl-layout-spacer"></div>
+  </div>
+  <div class="page-content mdl-typography--text-center">
+    {% for post in announcements %}
       <div class="mdl-grid">
         <div class="mdl-layout-spacer"></div>
-        <div class="mdl-cell mdl-cell--6-col">
-          <span class="announcement-title mdl-typography--display-3">
-            Announcements
-          </span>
+        <div class="mdl-cell mdl-cell--6-col mdl-card mdl-shadow--3dp card-background-color">
+          <div class="mdl-card__title">
+            <h2 class="mdl-card__title-text">{{ post.title }}</h2>
+          </div>
+          <div class="mdl-card__supporting-text">
+            {{ post.content }}
+          </div>
+          <div class="mdl-card__actions mdl-card--border">
+            <span class="mdl-chip mdl-chip--contact">
+              <img class="mdl-chip__contact" src="../static/img/harold.png"></img>
+              <span class="mdl-chip__text">{{ post.author }}</span>
+            </span>
+            {% for tag in post.tags %}
+              <span class="mdl-chip">
+                <span class="mdl-chip__text">{{ tag }}</span>
+              </span>
+            {% endfor %}
+          </div>
         </div>
         <div class="mdl-layout-spacer"></div>
       </div>
-      <div class="page-content mdl-typography--text-center">
-        {% for post in announcements %}
-          <div class="mdl-grid">
-            <div class="mdl-layout-spacer"></div>
-            <div class="mdl-cell mdl-cell--6-col mdl-card mdl-shadow--3dp card-background-color">
-              <div class="mdl-card__title">
-                <h2 class="mdl-card__title-text">{{ post.title }}</h2>
-              </div>
-              <div class="mdl-card__supporting-text">
-                {{ post.content }}
-              </div>
-              <div class="mdl-card__actions mdl-card--border">
-                <span class="mdl-chip mdl-chip--contact">
-                  <img class="mdl-chip__contact" src="../static/img/harold.png"></img>
-                  <span class="mdl-chip__text">{{ post.author }}</span>
-                </span>
-                {% for tag in post.tags %}
-                  <span class="mdl-chip">
-                    <span class="mdl-chip__text">{{ tag }}</span>
-                  </span>
-                {% endfor %}
-              </div>
-            </div>
-            <div class="mdl-layout-spacer"></div>
-          </div>
-        {% endfor %}
-      </div>
-    </main>
+    {% endfor %}
   </div>
-  <script src="https://code.getmdl.io/1.3.0/material.min.js"></script>
-</body>
-</html>
+{% endblock %}
