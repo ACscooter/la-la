@@ -1,50 +1,49 @@
-<!DOCTYPE HTML>
-<html lang="en" xml:lang="en">
+<!doctype html>
+<html lang="en">
 <head>
-  <title>La-La | Assistant</title>
   <meta charset="utf-8">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <link type="text/css" rel="stylesheet" href="../static/css/materialize.css"  media="screen,projection"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>La-La | Assistant</title>
 
-  <script type="text/javascript" src="../static/js/jquery-3.1.1.min.js"></script>
-  <script type="text/javascript" src="../static/js/materialize.js"></script>
-  <script>
-    $(document).ready(function(){
-      $('.button-collapse').sideNav({
-        menuWidth: 300
-      });
-      $('.collapsible').collapsible();
-    });
-  </script>
+  <!-- Page Styles -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.min.css">
+  <link rel="stylesheet" href="../static/css/assistant/index.css">
 </head>
 <body>
-  <main>
-    <nav>
-      <ul class="hide-on-med-and-down">
-        <li><a href="#" data-activates="slide-out" class="button-collapse show-on-large" onclick="console.log('Man fuck this shit');"><i class="material-icons">menu</i></a></li>
-        <li><a href="#!">First Navbar Link</a></li>
-        <li><a href="#!">Second Navbar Link</a></li>
-      </ul>
-      <ul id="slide-out" class="side-nav">
-        <li class="bold"><a href="#!" class="waves-effect waves-teal">First Sidebar Link</a></li>
-        <li class="bold"><a href="#!" class="">Second Sidebar Link</a></li>
-        <li>
-         <ul class="collapsible collapsible-accordion">
-           <li>
-             <a class="collapsible-header waves-effect waves-teal">Dropdown<i class="material-icons right">keyboard_arrow_down</i></a>
-             <div class="collapsible-body">
-               <ul>
-                 <li><a href="#!">First</a></li>
-                 <li><a href="#!">Second</a></li>
-                 <li><a href="#!">Third</a></li>
-                 <li><a href="#!">Fourth</a></li>
-               </ul>
-             </div>
-           </li>
-         </ul>
-        </li>
-     </ul>
-    </nav>
-  </main>
+  <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+    <header class="mdl-layout__header mdl-color--teal-400">
+      <div class="mdl-layout__header-row">
+        <nav class="mdl-navigation mdl-layout--large-screen-only">
+          <a class="mdl-navigation__link" href="">My Section</a>
+          <a class="mdl-navigation__link" href="">Preferences</a>
+        </nav>
+        <div class="mdl-layout-spacer"></div>
+        <span class="mdl-layout-title" style="font-weight:300;"> user@email.com</span>
+      </div>
+    </header>
+    <div class="mdl-layout__drawer">
+      <span class="mdl-layout-title">Title</span>
+      <nav class="mdl-navigation">
+        <a class="mdl-navigation__link" href="">Drawer Link</a>
+        <a class="mdl-navigation__link" href="">Drawer Link</a>
+        <a class="mdl-navigation__link" href="">Drawer Link</a>
+      </nav>
+    </div>
+    <main class="mdl-layout__content">
+      <div class="page-content mdl-typography--text-center">
+        <h1>sample text</h1>
+        <h1>sample text</h1>
+        <h1>sample text</h1>
+        <h1>sample text</h1>
+        <h1>sample text</h1>
+        <h1>sample text</h1>
+        <h1>sample text</h1>
+        <h1>sample text</h1>
+      </div>
+    </main>
+  </div>
+  <script src="https://code.getmdl.io/1.3.0/material.min.js"></script>
 </body>
 </html>
