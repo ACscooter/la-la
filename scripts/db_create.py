@@ -2,11 +2,14 @@
 import sys
 import os
 from migrate.versioning import api
+
 sys.path.append(os.pardir)
+
 from app.config import SQLALCHEMY_DATABASE_URI
 from app.config import SQLALCHEMY_MIGRATE_REPO
 from app import db
 import os.path
+
 db.create_all()
 if not os.path.exists(SQLALCHEMY_MIGRATE_REPO):
     api.create(SQLALCHEMY_MIGRATE_REPO, 'database repository')
