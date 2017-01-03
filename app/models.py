@@ -31,9 +31,9 @@ db = SQLAlchemy(metadata=metadata)
 def transaction(f):
     """ Decorator for database (session) transactions."""
     @functools.wraps(f)
-    def wrapper(*args, **kwds):
+    def wrapper(*args, **kwargs):
         try:
-            value = f(*args, **kwds)
+            value = f(*args, **kwargs)
             db.session.commit()
             return value
         except Exception as e:
