@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 
 from app import app
 from app.models import Announcement
-from app.constants import AccessLevel, SEMESTER_START, SEMESTER_LENGTH
+from app.constants import AccessLevel, SEMESTER_START, SEMESTER_LENGTH, DATE_FORMAT_CHECK_IN
 from app.utils import get_week_ranges
 
 import logging
@@ -48,21 +48,24 @@ def check_in():
 
     TODO:   Make this run in time linear w.r.t. the number attendances.
             Currently runs in time num_attendances * len(ranges)
+    TODO:   Only return weeks up to the current date.
     """
     attendance = current_user.get_all_attendances()
-    response = []
+    payload = []
     for start, end in get_week_ranges(SEMESTER_START, SEMESTER_LENGTH):
         entry = []
         in_range = [row for row in attendance if row.section_date >= start and row.section_date <= end]
         for row in in_range:
             entry.append({
-                'date' : row.section_date,
-                'type' : row.section.section_type,
+                'date' : row.section_date.strftime(DATE_FORMAT_CHECK_IN),
+                'type' : row.section.section_type.value,
                 'instructor_name' : row.section.instructor.name,
                 'location' : row.section.location,
                 'section_id' : row.section_id
             })
         entry = sorted(entry, key=lambda x : x['date'], reverse=True)
-        response.append(entry)
-    response.reverse()
-    return render_template("assistant/check_in.html", attendance=response)
+        payload.append(entry)
+    week_count = [(i + 1) for i in range(SEMESTER_LENGTH)]
+    payload = list(zip(week_count, payload))
+    payload.reverse()
+    return render_template("assistant/check_in.html", attendance=payload)

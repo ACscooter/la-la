@@ -8,16 +8,69 @@
 
   <div class="mdl-grid">
     <div class="mdl-layout-spacer"></div>
-    <div class="mdl-cell mdl-cell--6-col">
+    <div class="mdl-cell mdl-cell--8-col">
       <span class="announcement-title mdl-typography--display-3">
         Check-in
       </span>
     </div>
     <div class="mdl-layout-spacer"></div>
   </div>
-  <div class="page-content mdl-typography--text-center">
+  <div class="page-content">
     {% for entry in attendance %}
-      {{ entry }}
+      <div class="mdl-grid">
+        <div class="mdl-layout-spacer"></div>
+        <div class="mdl-cell mdl-cell--8-col">
+          <span class="announcement-title mdl-typography--headline" style="padding-bottom:100px;">
+            Week {{ entry[0] }}
+          </span>
+        </div>
+        <div class="mdl-layout-spacer"></div>
+      </div>
+      <div class="mdl-grid">
+        <div class="mdl-layout-spacer"></div>
+          <table class="mdl-cell mdl-cell--8-col mdl-data-table mdl-js-data-table">
+            <thead>
+              <tr>
+                <th class="mdl-data-table__cell--non-numeric">Date</th>
+                <th class="mdl-data-table__cell--non-numeric">Instructor</th>
+                <th class="mdl-data-table__cell--non-numeric">Location</th>
+                <th class="mdl-data-table__cell--non-numeric">Type</th>
+                <th class="mdl-data-table__cell--non-numeric">Confirmed</th>
+                <th class="mdl-data-table__cell--non-numeric">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for section in entry[1] %}
+                <tr>
+                  <th class="mdl-data-table__cell--non-numeric" data-title="Date">{{ section.date }}</th>
+                  <th class="mdl-data-table__cell--non-numeric" data-title="Instructor">{{ section.instructor_name }}</th>
+                  <th class="mdl-data-table__cell--non-numeric" data-title="Location">{{ section.location }}</th>
+                  <th class="mdl-data-table__cell--non-numeric" data-title="Type">{{ section.type }}</th>
+                  <th class="mdl-data-table__cell--non-numeric" data-title="Confirmed">
+                    {% if confirmed in section and confirmed == "pending" %}
+                      PENDING
+                    {% elif confirmed in section %}
+                      Confirmed on {{ section.confirmed }}
+                    {% else %}
+                      NONE
+                    {% endif %}
+                  </th>
+                  <th class="mdl-data-table__cell--non-numeric" data-title="Action">
+                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--icon" style="margin-right:15px;">
+                      <i class="material-icons">done</i>
+                    </button>
+                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--icon">
+                      <i class="material-icons">clear</i>
+                    </button>
+                  </th>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          <br><br><br><hr>
+        <!-- </div> -->
+        <div class="mdl-layout-spacer"></div>
+      </div>
     {% endfor %}
   </div>
 

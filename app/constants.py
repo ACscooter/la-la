@@ -7,8 +7,8 @@ import enum
 GOOGLE_OAUTH_URL = "https://www.googleapis.com/oauth2/v1/userinfo"
 
 # Date formats
-DATE_FORMAT_CHECK_IN = ""
-DATE_FORMAT_ANNOUNCEMENT = ""
+DATE_FORMAT_CHECK_IN = "%A %m/%d at %I:00 %p"
+DATE_FORMAT_ANNOUNCEMENT = "posted on %m/%d/%Y at %I:%M %p"
 
 # The time for which lab assistants can check in for a lab
 CHECK_IN_RANGE = timedelta(days=7)
@@ -29,8 +29,8 @@ class AccessLevel(enum.Enum):
 class SectionType(enum.Enum):
     """ The types of sections assistants can assist. """
 
-    LAB = "lab"
-    OFFICE_HOUR = "office hour"
+    LAB = "LAB"
+    OFFICE_HOUR = "OFFICE HOURS"
 
 
 class AttendanceType(enum.Enum):
