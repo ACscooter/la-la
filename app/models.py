@@ -2,12 +2,14 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 
-from sqlalchemy import MetaData, Column, ForeignKey, types
+from sqlalchemy import MetaData, Column, ForeignKey, types, create_engine
 from sqlalchemy.dialects import mysql
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import sessionmaker
 
 from datetime import datetime
 
+from app import app
 from app.constants import AccessLevel, SectionType, AttendanceType
 from app.utils import check_sections_csv, generate_rrule, date_in_rule
 
@@ -31,9 +33,9 @@ db = SQLAlchemy(metadata=metadata)
 def transaction(f):
     """ Decorator for database (session) transactions."""
     @functools.wraps(f)
-    def wrapper(*args, **kwds):
+    def wrapper(*args, **kwargs):
         try:
-            value = f(*args, **kwds)
+            value = f(*args, **kwargs)
             db.session.commit()
             return value
         except Exception as e:
@@ -41,6 +43,17 @@ def transaction(f):
             db.session.rollback()
             raise
     return wrapper
+
+def disposable_session():
+    """ Decorator for allowing disposable access to a database session. All
+    wrapped functions may now use local_session as a variable.
+
+    TODO:   Actually make this a wrapper...
+    """
+    engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
+    Session = sessionmaker(bind=engine)
+    local_session = Session()
+    return local_session
 
 
 # --------------------------- USER MODEL ---------------------------
@@ -87,6 +100,10 @@ class User(db.Model, UserMixin):
             return Attendance.query.filter_by(assistant_id=self.id).all()
         return []
 
+    def mark_unmarked(self, section_id, date):
+        """ Marks the assistant as unmarked from SECTION_ID on DATE. """
+        self.mark_attendance(section_id, date, AttendanceType.UNMARKED)
+
     def mark_present(self, section_id, date):
         """ Marks the assistant as present from SECTION_ID on DATE. """
         self.mark_attendance(section_id, date, AttendanceType.PRESENT)
@@ -105,16 +122,22 @@ class User(db.Model, UserMixin):
             logger.info("Set attendance error for {0}: staff member".format(self.name))
             raise TypeError("Cannot set attendance for staff")
         section = Section.lookup_by_section_id(section_id)
+        if section is None:
+            logger.info("Set attendance error {0}: no such section {1}".format(self.name, section_id))
+            raise TypeError("No section found!")
         if not section.is_valid_date(date):
             logger.info("Set attendance error for {0}: wrong date {1}".format(
                 self.name,
                 date
             ))
             raise TypeError("Cannot set attendance for section on {0}".format(date))
+        mark = None
+        if attend != AttendanceType.UNMARKED:
+            mark = datetime.now()
         elem = Attendance.lookup_by_assistant_section_date(self.id, section.id, date)
         if elem is None:
             elem = Attendance(assistant_id=self.id,
-                mark_date=datetime.now(),
+                mark_date=mark,
                 section_id=section.id,
                 section_date=date,
                 attendance_type=attend
@@ -145,6 +168,21 @@ class User(db.Model, UserMixin):
         if enrollment is None:
             enrollment = Enrollment(user_id=self.id, section_id=section.id)
             db.session.add(enrollment)
+
+    @staticmethod
+    def all_assistants():
+        """ Returns all lab assistants. """
+        return User.query.filter_by(access=AccessLevel.ASSISTANT).all()
+
+    @staticmethod
+    def all_staff():
+        """ Returns all staff members (including admins). """
+        return User.query.filter(or_(db.users.access==AccessLevel.STAFF, db.users.access==AccessLevel.ADMIN))
+
+    @staticmethod
+    def all_admin():
+        """ Returns all lab assistants. """
+        return User.query.filter_by(access=AccessLevel.ADMIN).all()
 
     @staticmethod
     def lookup_by_google(google_id):
@@ -185,6 +223,7 @@ class Section(db.Model):
     # Relationships
     assistants = db.relationship("Enrollment")
     attendance = db.relationship("Attendance")
+    instructor = db.relationship("User", back_populates="sections")
 
     def get_enrolled_assistants(self):
         """ Return all lab assistants assigned to this section. """
@@ -287,12 +326,16 @@ class Attendance(db.Model):
     __tablename__ = "attendance"
     id = Column(db.Integer, primary_key=True)
     assistant_id = Column(db.Integer, ForeignKey('users.id'), nullable=False)
-    mark_date = Column(db.DateTime, nullable=False)
+    mark_date = Column(db.DateTime)
     section_id = Column(db.Integer, ForeignKey('sections.id'), nullable=False)
     section_date = Column(db.DateTime, nullable=False)
-    instructor_id = Column(db.Integer, ForeignKey('users.id'), nullable=False)
-    confirmation_date = Column(db.DateTime, nullable=False)
+    instructor_id = Column(db.Integer, ForeignKey('users.id'))
+    confirmation_date = Column(db.DateTime)
     attendance_type = Column(types.Enum(AttendanceType), nullable=False)
+
+    # Relationships
+    section = db.relationship("Section", back_populates="attendance")
+
 
     @property
     def is_confirmed(self):

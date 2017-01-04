@@ -16,6 +16,9 @@
         La-La | Assistant
       {% endblock %}
     </title>
+
+    {% block scripts %}
+    {% endblock %}
   </head>
   <body>
     <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
@@ -32,8 +35,8 @@
       <div class="mdl-layout__drawer">
         <span class="mdl-layout-title">Title</span>
         <nav class="mdl-navigation">
-          <a class="mdl-navigation__link" href="">Announcements</a>
-          <a class="mdl-navigation__link" href="">Check-in</a>
+          <a class="mdl-navigation__link" href="/assistant">Announcements</a>
+          <a class="mdl-navigation__link" href="/assistant/check-in">Check-in</a>
           <a class="mdl-navigation__link" href="">Material</a>
         </nav>
       </div>
