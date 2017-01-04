@@ -122,6 +122,9 @@ class User(db.Model, UserMixin):
             logger.info("Set attendance error for {0}: staff member".format(self.name))
             raise TypeError("Cannot set attendance for staff")
         section = Section.lookup_by_section_id(section_id)
+        if section is None:
+            logger.info("Set attendance error {0}: no such section {1}".format(self.name, section_id))
+            raise TypeError("No section found!")
         if not section.is_valid_date(date):
             logger.info("Set attendance error for {0}: wrong date {1}".format(
                 self.name,

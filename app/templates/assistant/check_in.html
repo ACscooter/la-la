@@ -4,8 +4,38 @@
   La-La | Check-in
 {% endblock %}
 
-{% block content %}
+{% block scripts %}
+  <script type="text/javascript">
+    function submitAttendance(assistantID, sectionID, date, attendanceType) {
+      console.log("post generated!");
+      var endpoint = "/assistant/check-in/submit";
+      var params = {
+        "assistant_id" : assistantID,
+        "section_id" : sectionID,
+        "attendance_type" : attendanceType,
+        "date" : date
+      }
 
+      var newForm = document.createElement("form");
+      newForm.setAttribute("method", "post");
+      newForm.setAttribute("action", endpoint);
+      for (var key in params) {
+        if (params.hasOwnProperty(key)) {
+          var hiddenField = document.createElement("input");
+          hiddenField.setAttribute("type", "hidden");
+          hiddenField.setAttribute("name", key);
+          hiddenField.setAttribute("value", params[key]);
+          newForm.appendChild(hiddenField);
+        }
+      }
+
+      document.body.appendChild(newForm);
+      newForm.submit();
+    }
+  </script>
+{% endblock %}
+
+{% block content %}
   <div class="mdl-grid">
     <div class="mdl-layout-spacer"></div>
     <div class="mdl-cell mdl-cell--8-col">
@@ -42,24 +72,16 @@
             <tbody>
               {% for section in entry[1] %}
                 <tr>
-                  <th class="mdl-data-table__cell--non-numeric" data-title="Date">{{ section.date }}</th>
+                  <th class="mdl-data-table__cell--non-numeric" data-title="Date">{{ section.date_format }}</th>
                   <th class="mdl-data-table__cell--non-numeric" data-title="Instructor">{{ section.instructor_name }}</th>
                   <th class="mdl-data-table__cell--non-numeric" data-title="Location">{{ section.location }}</th>
                   <th class="mdl-data-table__cell--non-numeric" data-title="Type">{{ section.type }}</th>
-                  <th class="mdl-data-table__cell--non-numeric" data-title="Confirmed">
-                    {% if confirmed in section and confirmed == "pending" %}
-                      PENDING
-                    {% elif confirmed in section %}
-                      Confirmed on {{ section.confirmed }}
-                    {% else %}
-                      NONE
-                    {% endif %}
-                  </th>
+                  <th class="mdl-data-table__cell--non-numeric" data-title="Confirmed">{{ section.confirmed }}</th>
                   <th class="mdl-data-table__cell--non-numeric" data-title="Action">
-                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--icon" style="margin-right:15px;">
+                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--icon" onclick="submitAttendance({{ section.assistant_id }}, '{{ section.section_id }}', '{{ section.date }}', 'present');" style="margin-right:15px;">
                       <i class="material-icons">done</i>
                     </button>
-                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--icon">
+                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--icon" onclick="submitAttendance({{ section.assistant_id }}, '{{ section.section_id }}', '{{ section.date }}', 'absent');">
                       <i class="material-icons">clear</i>
                     </button>
                   </th>
@@ -73,6 +95,4 @@
       </div>
     {% endfor %}
   </div>
-
-
 {% endblock %}

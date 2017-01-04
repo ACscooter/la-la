@@ -7,6 +7,7 @@ import enum
 GOOGLE_OAUTH_URL = "https://www.googleapis.com/oauth2/v1/userinfo"
 
 # Date formats
+DATE_FORMAT_STANDARD = "%m/%d/%Y at %I:%M %p"
 DATE_FORMAT_CHECK_IN = "%A %m/%d at %I:00 %p"
 DATE_FORMAT_ANNOUNCEMENT = "posted on %m/%d/%Y at %I:%M %p"
 
