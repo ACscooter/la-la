@@ -16,7 +16,9 @@
     <div class="mdl-layout-spacer"></div>
   </div>
   <div class="page-content mdl-typography--text-center">
-    
+    {% for entry in attendance %}
+      {{ entry }}
+    {% endfor %}
   </div>
 
 

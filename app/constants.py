@@ -1,15 +1,21 @@
 from datetime import timedelta
 
+import dateutil.parser as dp
 import enum
 
 # Google Sign-in related constants
 GOOGLE_OAUTH_URL = "https://www.googleapis.com/oauth2/v1/userinfo"
 
-# The number of sections in each semester
-NUMBER_OF_SECTIONS = 15
+# Date formats
+DATE_FORMAT_CHECK_IN = ""
+DATE_FORMAT_ANNOUNCEMENT = ""
 
 # The time for which lab assistants can check in for a lab
 CHECK_IN_RANGE = timedelta(days=7)
+
+# Constants related to the length of the semester
+SEMESTER_START = dp.parse("8/15/2016")
+SEMESTER_LENGTH = 15
 
 
 class AccessLevel(enum.Enum):
@@ -32,3 +38,4 @@ class AttendanceType(enum.Enum):
 
     ABSENT = "absent"
     PRESENT = "present"
+    UNMARKED = "unmarked"
