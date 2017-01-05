@@ -89,9 +89,15 @@ def check_in():
 @assistant.route('/check-in/submit', methods=['POST'])
 @login_required
 def submit_check_in():
+    """ Lab assistants who want to check in can submit a POST request here. """
     assistant = User.lookup_by_id(request.form['assistant_id'])
     attendance = AttendanceType(request.form['attendance_type'])
     date = dp.parse(request.form['date'])
-    # section_id = int()
     assistant.mark_attendance(request.form['section_id'], date, attendance)
     return redirect(url_for("assistant.check_in", _external=True))
+
+@assistant.route('/preferences')
+@assistant_required
+def preferences():
+    """ The profile page of the student. """
+    return render_template("assistant/preferences.html")
